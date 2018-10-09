@@ -54,15 +54,28 @@ app.get('/search', function (req, res){
   // also match any data where the name is like the query string sent in
   let body = {
     size: 200,
-    from: 0, 
-    query: {
-      match: {
-          name: req.query['q']
-      }
-    }
+    from: 0,
+    "query":{
+      "bool":{
+          "must":[
+          {
+              "query_string":{
+                  "default_field":"_all",
+                  "query":req.query['q']
+              }
+          }
+          ],
+          "must_not":[],
+      "should":[]}
+  },
+      "from":0,
+      "size":10,
+      "sort":[],
+      "aggs":{}
+     
   }
   // perform the actual search passing in the index, the search query and the type
-  client.search({index:'scotch.io-tutorial',  body:body, type:'cities_list'})
+  client.search({index:'pk',  body:body, type:''})
   .then(results => {
     res.send(results.hits.hits);
   })

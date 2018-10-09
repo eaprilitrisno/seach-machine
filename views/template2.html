@@ -39,42 +39,16 @@
                 <td><button type="button" class="btn btn-primary" v-on:click="myFunction(result._source.kode)">Check Stock</button></td>
             </tr>
             </tbody>
-        </table>
-        {{ stock_results }}
-        <div class="col-md-3 hidden" v-for="result in results">
-            <div class="panel panel-default">
-                <div class="panel-heading"> 
-                    <p>Kode:{{ result._source.kode }}</p>
-                    {{ result._source.barang }} 
-                </div>
-                <div class="panel-body">
-                <!-- display the latitude and longitude of the city  -->
-                    <p>Price:{{ result._source.harga }}, Tgl: {{ result._source.tanggal }}.</p>
-                </div>
-            </div>
+        </table> 
+        <div class="alert alert-info" v-if="kode_barang" > 
+                 <strong>Stock</strong>
+                  <p>Kode   : {{ kode_barang }}</p>
+                  <p>Cabang : {{ nama_cabang }}</p>
+                  <p>Stock  : {{ stock_aktif }}</p>  
+            </tr>
         </div>
     </div>
 </div>
-<div id="myModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Modal Header</h4>
-      </div>
-      <div class="modal-body">
-        <p>Some text in the modal.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-
 <script src="/elasticsearch.min.js"></script>
 
 <script>
@@ -89,7 +63,10 @@ var app = new Vue({
     data: {
         results: [],
         stock_results: [],
-        query: ''
+        query: '',
+        kode_barang: '',
+        nama_cabang: '',
+        stock_aktif: 0,
     },
     // declare methods in this Vue component. here only one method which performs the search is defined
     methods: {
@@ -121,10 +98,10 @@ var app = new Vue({
                 .then(results => {
                     console.log(`found ${results.hits.total} items in ${results.took}ms`);
                     // set the results to the result array we have 
-                    this.stock_results = results.hits.hits;
-                    $('#myModal').modal({
-                      show: true
-                    })
+                    this.stock_results = results.hits.hits[0];
+                    this.nama_cabang = this.stock_results._source.nama_cabang; 
+                    this.stock_aktif = this.stock_results._source.stock_aktif;
+                    this.kode_barang = this.stock_results._source.kode_barang;
                 })
                 .catch(err => {
                     console.log(err)

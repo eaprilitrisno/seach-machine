@@ -5,7 +5,7 @@
 <div class="container" id="app">
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
-            <h1>Search AltoShift</h1>
+            <h1>Search Plaza Kamera </h1>
         </div>
     </div>
     <div class="row">
@@ -23,22 +23,24 @@
         <table class="table table-bordered">
             <thead>
               <tr>
-                <th>Kode</th>
-                <th>Nama</th>
-                <th>Harga</th>
-                <th>Tanggal</th>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Date</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="result in results">
                 <td>{{ result._source.kode }}</td>
                 <td>{{ result._source.barang }}</td>
-                <td>{{ result._source.harga }}</td>
-                <td>{{ result._source.tanggal }}</td>
+                <td>{{ result._source.harga.toLocaleString() }}</td>
+                <td>{{ result._source.tanggal.split('/').reverse().join('/') }}</td>
+                <td><button type="button" class="btn btn-primary" v-on:click="myFunction(result._source.kode)">Check Stock</button></td>
             </tr>
             </tbody>
         </table>
-
+        {{ stock_results }}
         <div class="col-md-3 hidden" v-for="result in results">
             <div class="panel panel-default">
                 <div class="panel-heading"> 
@@ -53,6 +55,26 @@
         </div>
     </div>
 </div>
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Modal Header</h4>
+      </div>
+      <div class="modal-body">
+        <p>Some text in the modal.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script src="/elasticsearch.min.js"></script>
 
 <script>
@@ -66,12 +88,49 @@ var app = new Vue({
     // declare the data for the component (An array that houses the results and a query that holds the current search string)
     data: {
         results: [],
+        stock_results: [],
         query: ''
     },
     // declare methods in this Vue component. here only one method which performs the search is defined
     methods: {
         // function that calls the elastic search. here the query object is set just as that of the server.
         //Here the query string is passed directly from Vue
+        myFunction: function(id) {
+          console.log(id)
+          var body = {
+                "query":{
+                    "bool":{
+                        "must":[
+                        {
+                            "query_string":{
+                                "default_field":"kode_barang.keyword",
+                                "query":id
+                            }
+                        }
+                        ],
+                        "must_not":[],
+                    "should":[]}
+                },
+                    "from":0,
+                    "size":10,
+                    "sort":[],
+                    "aggs":{}
+                }
+                // search the Elasticsearch passing in the index, query object and type
+            client.search({ index: 'pk', body: body, type: 'stock' })
+                .then(results => {
+                    console.log(`found ${results.hits.total} items in ${results.took}ms`);
+                    // set the results to the result array we have 
+                    this.stock_results = results.hits.hits;
+                    $('#myModal').modal({
+                      show: true
+                    })
+                })
+                .catch(err => {
+                    console.log(err)
+
+                });
+        },
         search: function() {
             var body = {
                 "query":{
@@ -93,7 +152,7 @@ var app = new Vue({
                     "aggs":{}
                 }
                 // search the Elasticsearch passing in the index, query object and type
-            client.search({ index: 'pk', body: body, type: '' })
+            client.search({ index: 'pk', body: body, type: 'price' })
                 .then(results => {
                     console.log(`found ${results.hits.total} items in ${results.took}ms`);
                     // set the results to the result array we have 

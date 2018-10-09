@@ -19,7 +19,13 @@
             </form>
         </div>
     </div>
-    <div class="row">
+    <div class="row" class="alert alert-info" >
+        <div class="alert alert-info" v-if="kode_barang">
+          <strong>Stock</strong>
+          <p>Kode   : {{ kode_barang }}</p>
+          <p>Cabang : {{ nama_cabang }}</p>
+          <p>Stock  : {{ stock_aktif }}</p> 
+        </div>
         <table class="table table-bordered">
             <thead>
               <tr>
@@ -36,17 +42,12 @@
                 <td>{{ result._source.barang }}</td>
                 <td>{{ result._source.harga.toLocaleString() }}</td>
                 <td>{{ result._source.tanggal.split('/').reverse().join('/') }}</td>
-                <td><button type="button" class="btn btn-primary" v-on:click="myFunction(result._source.kode)">Check Stock</button></td>
+                <td><button type="button" class="btn btn-primary" v-on:click="myFunction(result._source.kode)">Check Stock</button></td> 
+                
             </tr>
+
             </tbody>
-        </table> 
-        <div class="alert alert-info" v-if="kode_barang" > 
-                 <strong>Stock</strong>
-                  <p>Kode   : {{ kode_barang }}</p>
-                  <p>Cabang : {{ nama_cabang }}</p>
-                  <p>Stock  : {{ stock_aktif }}</p>  
-            </tr>
-        </div>
+        </table>  
     </div>
 </div>
 <script src="/elasticsearch.min.js"></script>
@@ -148,6 +149,7 @@ var app = new Vue({
         // watch for change in the query string and recall the search method
         query: function() {
             this.search();
+            this.kode_barang = '';
         }
     }
 

@@ -42,8 +42,13 @@ app.use(function(req, res, next) {
 });
 
 // defined the base route and return with an HTML file called tempate.html
+app.get('/old', function(req, res){
+  res.sendFile('template2.html', {
+     root: path.join( __dirname, 'views' )
+   });
+})
 app.get('/', function(req, res){
-  res.sendFile('template.html', {
+  res.sendFile('template2.html', {
      root: path.join( __dirname, 'views' )
    });
 })
@@ -91,8 +96,4 @@ app .listen( app.get( 'port' ), function(){
 } );
 
 
-app.get('/v2', function(req, res){
-  res.sendFile('template2.html', {
-     root: path.join( __dirname, 'views' )
-   });
-})
+

@@ -41,17 +41,12 @@ app.use(function(req, res, next) {
   next();
 });
 
-// defined the base route and return with an HTML file called tempate.html
-app.get('/old', function(req, res){
-  res.sendFile('template2.html', {
-     root: path.join( __dirname, 'views' )
-   });
-})
 app.get('/', function(req, res){
   res.sendFile('template2.html', {
      root: path.join( __dirname, 'views' )
    });
 })
+
 
 // define the /search route that should return elastic search results 
 app.get('/search', function (req, res){
@@ -95,5 +90,11 @@ app .listen( app.get( 'port' ), function(){
   console.log( 'Express server listening on port ' + app.get( 'port' ));
 } );
 
+// defined the base route and return with an HTML file called tempate.html
+app.get('/old', function(req, res){
+  res.sendFile('template.html', {
+     root: path.join( __dirname, 'views' )
+   });
+})
 
 

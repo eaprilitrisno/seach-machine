@@ -3,7 +3,7 @@
 const elasticsearch = require('elasticsearch');
 // instantiate an elasticsearch client
 const client = new elasticsearch.Client({
-   hosts: [ 'http://localhost:9200']
+   hosts: [ 'http://127.0.0.1:9200']
 });
 //require Express
 const express = require( 'express' );

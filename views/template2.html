@@ -5,7 +5,7 @@
 <div class="container" id="app">
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
-            <h1>Search Cities around the world</h1>
+            <h1>Search AltoShift</h1>
         </div>
     </div>
     <div class="row">
@@ -22,13 +22,13 @@
     <div class="row">
         <div class="col-md-3" v-for="result in results">
             <div class="panel panel-default">
-                <div class="panel-heading">
-                <!-- display the city name and country  -->
-                    {{ result._source.name }}, {{ result._source.country }} 
+                <div class="panel-heading"> 
+                    <p>Kode:{{ result._source.kode }}</p>
+                    {{ result._source.barang }} 
                 </div>
                 <div class="panel-body">
                 <!-- display the latitude and longitude of the city  -->
-                    <p>first name:{{ result._source.firstname }}, long: {{ result._source.lastname }}.</p>
+                    <p>Price:{{ result._source.harga }}, Tgl: {{ result._source.tanggal }}.</p>
                 </div>
             </div>
         </div>
@@ -98,7 +98,7 @@
 <script>
 // instantiate a new Elasticsearch client like you did on the client
 var client = new elasticsearch.Client({
-    hosts: ['http://127.0.0.1:9200']
+    hosts: ['http://52.221.246.57:9200']
 });
 // create a new Vue instance
 var app = new Vue({
@@ -114,16 +114,26 @@ var app = new Vue({
         //Here the query string is passed directly from Vue
         search: function() {
             var body = {
-                    size: 200,
-                    from: 0,
-                    query: {
-                        match: {
-                            account_number: this.query
+                "query":{
+                    "bool":{
+                        "must":[
+                        {
+                            "query_string":{
+                                "default_field":"_all",
+                                "query":this.query
+                            }
                         }
-                    }
+                        ],
+                        "must_not":[],
+                    "should":[]}
+                },
+                    "from":0,
+                    "size":10,
+                    "sort":[],
+                    "aggs":{}
                 }
                 // search the Elasticsearch passing in the index, query object and type
-            client.search({ index: 'bank', body: body, type: '_doc' })
+            client.search({ index: 'pk', body: body, type: '' })
                 .then(results => {
                     console.log(`found ${results.hits.total} items in ${results.took}ms`);
                     // set the results to the result array we have 

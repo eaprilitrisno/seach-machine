@@ -19,6 +19,7 @@
             </form>
         </div>
     </div>
+	{{ results }}
     <div class="row" class="alert alert-info" >
         <div class="alert alert-info" v-if="kode_barang">
           <strong>Stock</strong>
@@ -36,13 +37,8 @@
                 <th>Action</th>
               </tr>
             </thead>
+		
             <tbody>
-              <tr v-for="result in results">
-                <td>{{ result._source.kode }}</td>
-                <td>{{ result._source.barang }}</td>
-                <td>{{ result._source.harga.toLocaleString() }}</td>
-                <td>{{ result._source.tanggal.split('/').reverse().join('/') }}</td>
-                <td><button type="button" class="btn btn-primary" v-on:click="myFunction(result._source.kode)">Check Stock</button></td> 
                 
             </tr>
 
@@ -110,31 +106,40 @@ var app = new Vue({
                 });
         },
         search: function() {
-            var body = {
-                "query":{
-                    "bool":{
-                        "must":[
-                        {
-                            "query_string":{
-                                "default_field":"_all",
-                                "query":this.query
-                            }
-                        }
-                        ],
-                        "must_not":[],
-                    "should":[]}
-                },
-                    "from":0,
-                    "size":10,
-                    "sort":[],
-                    "aggs":{}
-                }
+            	var body = {
+			
+  "query": {
+    "match": {
+      "barang": this.query
+    }
+  },
+  "size": 0,
+  "aggs": {
+    "by_kode": {
+      "terms": {
+        "field": "kode.keyword"
+      },
+      "aggs": {
+        "max_date": {
+          "top_hits": {
+            "size": 1,
+            "sort": {
+              "tanggal": "desc"
+            }
+          }
+        }
+      }
+    }
+  }
+
+		}
+                
                 // search the Elasticsearch passing in the index, query object and type
-            client.search({ index: 'pk', body: body, type: 'price' })
+            client.search({ index: 'pk', body: body, type: '' })
                 .then(results => {
-                    console.log(`found ${results.hits.total} items in ${results.took}ms`);
+                    //console.log(`found ${results.hits.total} items in ${results.took}ms`);
                     // set the results to the result array we have 
-                    this.results = results.hits.hits;
+                    this.results = results.aggregations;
                 })
                 .catch(err => {
                     console.log(err)

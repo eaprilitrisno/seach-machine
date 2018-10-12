@@ -30,7 +30,7 @@ client.ping({
 // use the bodyparser as a middleware  
 app.use(bodyParser.json())
 // set port for the app to listen on
-app.set( 'port', process.env.PORT || 3001 );
+app.set( 'port', process.env.PORT || 80 );
 // set path to serve static files
 app.use( express.static( path.join( __dirname, 'public' )));
 // enable CORS 
